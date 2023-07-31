@@ -1,4 +1,6 @@
 import axios from "axios";
+import { redirect } from "react-router-dom";
+import Login from "./pages/auth/Login";
 
 
 const authEndpoint = "https://accounts.spotify.com/authorize?";
@@ -18,6 +20,20 @@ export const setClientToken = (token) => {
         config.headers.Authorization = "Bearer " + token;
         return config;
     });
+    apiClient.interceptors.response.use(function (response) {
+        // Any status code that lie within the range of 2xx cause this function to trigger
+        // Do something with response data
+        return response;
+    }, function (error) {
+        // Any status codes that falls outside the range of 2xx cause this function to trigger
+        // Do something with response error
+        if (error.response.status === 401) {
+            window.localStorage.removeItem("token");
+            return redirect("/feed");
+        }
+        return Promise.reject(error);
+    });
+
 };
 
 export default apiClient;
